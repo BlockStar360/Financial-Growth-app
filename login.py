@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from functions import addPlaceholder
+from functions import showPopup
 from database import checkUser, addUser
 from homepage import homePage
 
@@ -12,18 +13,12 @@ def userLogin(usernameEntry, passwordEntry, root):
         messagebox.showwarning("Input Error", "Please enter some text.")
         return
     if checkUser(username, password):
-        messagebox.showinfo(
-            "Login Worked",
-            f"Welcome {username}!"
-        )
+        showPopup(root, "Login successful!", f"Welcome {username}!")
         for widget in root.winfo_children():
             widget.destroy()
         homePage(root)
     else:
-        messagebox.showerror(
-            "Login Failed",
-            "Incorrect username or password."
-        )
+        showPopup(root, "Error", "Please fill out both fields.")
 
 #Create the log in window
 def loginPage(root):

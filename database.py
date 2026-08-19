@@ -1,5 +1,4 @@
 import sqlite3
-
 DATABASE = "users.db"
 
 
