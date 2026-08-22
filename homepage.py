@@ -12,7 +12,7 @@ def homePage(root):
     root.resizable(False, False)
 
     # Money variables
-    money = 65
+    money = 25
     maxMoney = 100
 
     #Canvas
@@ -27,14 +27,14 @@ def homePage(root):
     canvas.pack()
 
     #Create the tree graphic
-    treeImage = tk.PhotoImage(file="tree.png")
+#    treeImage = tk.PhotoImage(file="tree.png")
 
-    canvas.create_image(
-        161,
-        220,
-        image=treeImage
-    )
-    canvas.treeImage = treeImage
+#    canvas.create_image(
+#        161,
+#        220,
+#        image=treeImage
+#    )
+#    canvas.treeImage = treeImage
 
     #Money progress bar stuff
     barX1 = 60
@@ -63,22 +63,6 @@ def homePage(root):
         barY2 - 4,
         fill="#FFD83D",
         outline=""
-    )
-
-    #Make a profile button
-    profileButton = tk.Button(
-        root,
-        text="●",
-        font=("Arial", 20),
-        width=2,
-        height=1,
-        command=lambda: profilePage(root),
-        relief="flat"
-    )
-
-    profileButton.place(
-        x=10,
-        y=10
     )
 
     #Format the bar at the bottom
@@ -112,21 +96,43 @@ def homePage(root):
         height=44
     )
 
-    #Create a home button
-    homeButton = tk.Button(
-        bottomBar,
-        text="🏠",
-        font=("Segoe UI Emoji", 20),
-        bg="#EEEEEE",
-        relief="flat",
-        command=lambda: homePage(root)
+
+    #Create a circle home button
+    homeButton = tk.Canvas(
+    bottomBar,
+    width=50,
+    height=50,
+    bg="#EEEEEE",
+    highlightthickness=0
     )
 
     homeButton.place(
-        x=126,
-        y=3,
-        width=70,
-        height=44
+    x=136,
+    y=0
+    )
+
+    #Green circle for the button
+    homeButton.create_oval(
+    3,
+    3,
+    47,
+    47,
+    fill="#4B8F43",
+    outline=""
+    )
+
+    #Add an emoji
+    homeButton.create_text(
+    25,
+    25,
+    text="🌳",
+    font=("Segoe UI Emoji", 20)
+    )
+
+    #MAke the circle go to the homepage when clicked
+    homeButton.bind(
+    "<Button-1>",
+    lambda event: homePage(root)
     )
 
     #Create a chores button
