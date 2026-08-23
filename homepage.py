@@ -3,7 +3,7 @@ import os
 
 from shop import shopPage
 from choreList import choresPage
-from bottomBar import createBottomBar
+from bars import createBottomBar, createTopBar
 
 
 def homePage(root):
@@ -31,10 +31,23 @@ def homePage(root):
 
     canvas.pack()
 
+    #Create the background
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    backgroundImage = tk.PhotoImage(
+    file=os.path.join(BASE_DIR, "Tree Graphics", "app background.png")
+    )
+
+    canvas.create_image(
+        161,
+        290,
+        image=backgroundImage
+    )
+    canvas.bgImage = backgroundImage
+
     #Create the tree graphic
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     treeImage = tk.PhotoImage(
-    file=os.path.join(BASE_DIR, "Tree Graphics", "big default.png")
+    file=os.path.join(BASE_DIR, "Tree Graphics", "big on fire.png")
     )
 
     canvas.create_image(
@@ -73,6 +86,16 @@ def homePage(root):
         outline=""
     )
 
+    #Create the XP amount text
+    canvas.create_text(
+    161,
+    barY2 + 15,
+    text=f"{money}/{maxMoney} XP",
+    font=("Noto Sans HK Black", 10),
+    fill="black"
+    )
+
+    createTopBar(root, "Home page")
     createBottomBar(root)
 
 def profilePage(root):

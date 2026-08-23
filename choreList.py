@@ -1,6 +1,7 @@
 import tkinter as tk
+import os
 
-from bottomBar import createBottomBar
+from bars import createBottomBar, createTopBar
 
 def choresPage(root):
 
@@ -18,11 +19,18 @@ def choresPage(root):
 
     canvas.pack()
 
-    canvas.create_text(
-    161,
-    100,
-    text="Chores Page",
-    font=("Noto Sans HK Black", 16)
-)
+    #Create the background
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    backgroundImage = tk.PhotoImage(
+    file=os.path.join(BASE_DIR, "Tree Graphics", "app background.png")
+    )
 
+    canvas.create_image(
+        161,
+        290,
+        image=backgroundImage
+    )
+    canvas.bgImage = backgroundImage
+
+    createTopBar(root, "Chores list")
     createBottomBar(root)

@@ -1,12 +1,54 @@
 import tkinter as tk
 
+def createTopBar(root, pageTitle):
+    #Format the bar at the top
+    topBar = tk.Frame(
+        root,
+        bg="#EEEEEE",
+        height=50
+    )
+
+    topBar.place(
+        x=0,
+        y=0,
+        width=322,
+        height=50
+    )
+
+    #Divider line below the top bar
+    dividerLine = tk.Frame(
+        root,
+        bg="#CCCCCC",
+        height=2
+    )
+
+    dividerLine.place(
+        x=0,
+        y=50,
+        width=322,
+        height=2
+    )
+
+    #Page title text
+    titleLabel = tk.Label(
+        topBar,
+        text=pageTitle,
+        font=("Noto Sans HK Black", 14),
+        bg="#EEEEEE"
+    )
+
+    titleLabel.place(
+        relx=0.5,
+        rely=0.5,
+        anchor="center"
+    )
 
 def createBottomBar(root):
     from shop import shopPage
     from choreList import choresPage
     from homepage import homePage
 
-    ##Create the grey divider line to seperate the bottom bar from the rest of the page
+    #Create the grey divider line to seperate the bottom bar from the rest of the page
     dividerLine = tk.Frame(
         root,
         bg="#CCCCCC",

@@ -34,7 +34,7 @@ def loginPage(root):
     root.resizable(False, False)  #Disable resizing
 
     #Create the label text
-    label = tk.Label(root, text="Welcome to APP NAME", font=("Noto Sans HK Black", 12))
+    label = tk.Label(root, text="Welcome to Financial Growth", font=("Noto Sans HK Black", 12))
     label.pack(pady=10)
 
     #Create text fields for username and password
