@@ -1,15 +1,28 @@
 import tkinter as tk
 
+from bottomBar import createBottomBar
 
 def shopPage(root):
 
     for widget in root.winfo_children():
         widget.destroy()
 
-    label = tk.Label(
+    #Canvas
+    canvas = tk.Canvas(
         root,
-        text="Shop Page",
-        font=("Noto Sans HK Black", 16)
+        width=322,
+        height=581,
+        bg="white",
+        highlightthickness=0
     )
 
-    label.pack(pady=30)
+    canvas.pack()
+
+    canvas.create_text(
+    161,
+    100,
+    text="Shop Page",
+    font=("Noto Sans HK Black", 16)
+)
+
+    createBottomBar(root)

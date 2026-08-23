@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from functions import addPlaceholder
-from functions import showPopup
+from functions import showPopup, addPlaceholder, getRealValue
 from database import checkUser, addUser
 from homepage import homePage
 
@@ -10,7 +10,7 @@ def userLogin(usernameEntry, passwordEntry, root):
     username = usernameEntry
     password = passwordEntry
     if not username or not password:
-        messagebox.showwarning("Input Error", "Please enter some text.")
+        showPopup(root, "Error", "Please fill out both fields")
         return
     if checkUser(username, password):
         showPopup(root, "Login successful!", f"Welcome {username}!")
@@ -18,7 +18,14 @@ def userLogin(usernameEntry, passwordEntry, root):
             widget.destroy()
         homePage(root)
     else:
-        showPopup(root, "Error", "Please fill out both fields.")
+        showPopup(root, "Error", "User not found")
+
+#Process sign up
+def userSignup(username, password, root):
+    if not username or not password:
+        showPopup(root, "Error", "Please fill out both fields")
+        return
+    addUser(username, password)
 
 #Create the log in window
 def loginPage(root):
@@ -40,18 +47,17 @@ def loginPage(root):
     addPlaceholder(passwordEntry, "Password")
 
     #Create the login button
-    loginButton = tk.Button(root, 
-                           text="Log In", 
-                           command=lambda:userLogin(usernameEntry.get().strip(), passwordEntry.get().strip(),
-                                                    root),
+    loginButton = tk.Button(root,
+                           text="Log In",
+                           command=lambda: userLogin(getRealValue(usernameEntry), getRealValue(passwordEntry), root),
                            font=("Noto Sans HK Black", 12),
                            )
     loginButton.pack(pady=10)
 
     #Create the sign up button
-    loginButton = tk.Button(root, 
-                            text="Sign Up", 
-                            command=lambda:addUser(usernameEntry.get().strip(), passwordEntry.get().strip()), 
+    signupButton = tk.Button(root,
+                            text="Sign Up",
+                            command=lambda: userSignup(getRealValue(usernameEntry), getRealValue(passwordEntry), root),
                             font=("Noto Sans HK Black", 12)
                             )
-    loginButton.pack(pady=10)
+    signupButton.pack(pady=10)

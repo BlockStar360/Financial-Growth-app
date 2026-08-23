@@ -1,12 +1,17 @@
 import tkinter as tk
+import os
 
 from shop import shopPage
 from choreList import choresPage
+from bottomBar import createBottomBar
 
 
 def homePage(root):
 
-    #Settings
+    for widget in root.winfo_children():
+            widget.destroy()
+    
+    #Page settings
     root.title("Home")
     root.geometry("322x581")
     root.resizable(False, False)
@@ -27,14 +32,17 @@ def homePage(root):
     canvas.pack()
 
     #Create the tree graphic
-#    treeImage = tk.PhotoImage(file="tree.png")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    treeImage = tk.PhotoImage(
+    file=os.path.join(BASE_DIR, "Tree Graphics", "big default.png")
+    )
 
-#    canvas.create_image(
-#        161,
-#        220,
-#        image=treeImage
-#    )
-#    canvas.treeImage = treeImage
+    canvas.create_image(
+        161,
+        227,
+        image=treeImage
+    )
+    canvas.treeImage = treeImage
 
     #Money progress bar stuff
     barX1 = 60
@@ -65,92 +73,7 @@ def homePage(root):
         outline=""
     )
 
-    #Format the bar at the bottom
-    bottomBar = tk.Frame(
-        root,
-        bg="#EEEEEE",
-        height=50
-    )
-
-    bottomBar.place(
-        x=0,
-        y=531,
-        width=322,
-        height=50
-    )
-
-    #Create a shop button
-    shopButton = tk.Button(
-        bottomBar,
-        text="🛒",
-        font=("Segoe UI Emoji", 20),
-        bg="#EEEEEE",
-        relief="flat",
-        command=lambda: shopPage(root)
-    )
-
-    shopButton.place(
-        x=30,
-        y=3,
-        width=70,
-        height=44
-    )
-
-
-    #Create a circle home button
-    homeButton = tk.Canvas(
-    root,
-    width=70,
-    height=70,
-    bg="#EEEEEE",
-    highlightthickness=0
-    )
-
-    homeButton.place(
-    x=126,
-    y=511
-    )
-
-    #Green circle for the button
-    homeButton.create_oval(
-    2,
-    2,
-    68,
-    68,
-    fill="#4B8F43",
-    outline="#1F5019"
-    )
-
-    #Add an emoji
-    homeButton.create_text(
-    35,
-    35,
-    text="🌳",
-    font=("Segoe UI Emoji", 25)
-    )
-
-    #Make the circle go to the homepage when clicked
-    homeButton.bind(
-    "<Button-1>",
-    lambda event: homePage(root)
-    )
-
-    #Create a chores button
-    choresButton = tk.Button(
-        bottomBar,
-        text="☷",
-        font=("Arial", 25),
-        bg="#EEEEEE",
-        relief="flat",
-        command=lambda: choresPage(root)
-    )
-
-    choresButton.place(
-        x=222,
-        y=3,
-        width=70,
-        height=44
-    )
+    createBottomBar(root)
 
 def profilePage(root):
 

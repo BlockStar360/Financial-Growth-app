@@ -4,19 +4,26 @@ import tkinter as tk
 def addPlaceholder(entry, placeholder):
     entry.insert(0, placeholder)
     entry.config(fg="light grey")
+    entry.isPlaceholder = True
 
     def onFocusIn(event):
-        if entry.get() == placeholder:
+        if entry.isPlaceholder:
             entry.delete(0, tk.END)
             entry.config(fg="black")
+            entry.isPlaceholder = False
 
     def onFocusOut(event):
         if entry.get() == "":
             entry.insert(0, placeholder)
             entry.config(fg="grey")
+            entry.isPlaceholder = True
 
     entry.bind("<FocusIn>", onFocusIn)
     entry.bind("<FocusOut>", onFocusOut)
+
+#Checks if the text box is has actual text or just the placeholder
+def getRealValue(entry):
+    return "" if getattr(entry, "isPlaceholder", False) else entry.get().strip()
 
 #Make a popup screen with custom text
 def showPopup(root, title, message):
