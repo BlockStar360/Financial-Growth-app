@@ -5,7 +5,7 @@ import session
 from shop import shopPage
 from choreList import choresPage
 from bars import createBottomBar, createTopBar
-from database import getXP
+from database import getXP, getTreeLevel
 
 
 def homePage(root):
@@ -18,9 +18,11 @@ def homePage(root):
     root.geometry("322x581")
     root.resizable(False, False)
 
-    # Money variables
+    #XP and tree level variables
+    childUsername = session.currentUsername
     xp = getXP(session.currentUsername) if session.currentUsername else 0
-    maxXp = 100
+    maxXP = 100
+    treeLevel = getTreeLevel(childUsername) if childUsername else 1
 
     #Canvas
     canvas = tk.Canvas(
@@ -47,9 +49,13 @@ def homePage(root):
     canvas.bgImage = backgroundImage
 
     #Create the tree graphic
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    treeImageFiles = {
+        1: "small.png",
+        2: "medium.png",
+        3: "big default.png"
+    }
     treeImage = tk.PhotoImage(
-    file=os.path.join(BASE_DIR, "Tree Graphics", "big on fire.png")
+    file=os.path.join(BASE_DIR, "Tree Graphics", treeImageFiles[treeLevel])
     )
 
     canvas.create_image(
@@ -76,15 +82,22 @@ def homePage(root):
         width=8
     )
 
-    #Money progress bar for tree upgrade
-    moneyPercentage = min(xp / maxXp, 1)
-    fillWidth = (barX2 - barX1) * moneyPercentage
+    #XP progress bar increasing for leveling up the tree
+    #Finding the width of the inside of the bar
+    innerX1 = barX1 + 4
+    innerX2 = barX2 - 4
+    innerWidth = innerX2 - innerX1
+
+    #Filling the inside of the bar not the outline
+    moneyPercentage = min(xp / maxXP, 1)
+    fillWidth = innerWidth * moneyPercentage
+
     canvas.create_rectangle(
-        barX1 + 4,
-        barY1 + 4,
-        barX1 + 4 + fillWidth,
-        barY2 - 4,
-        fill="#FFD83D",
+        innerX1, 
+        barY1 + 4, 
+        innerX1 + fillWidth, 
+        barY2 - 4, 
+        fill="#FFD83D", 
         outline=""
     )
 
@@ -92,9 +105,19 @@ def homePage(root):
     canvas.create_text(
     161,
     barY2 + 15,
-    text=f"{xp}/{maxXp} XP",
+    text=f"{xp}/{maxXP} XP",
     font=("Noto Sans HK Black", 10),
     fill="black"
+    )
+
+    #Create the tree level text
+    levelText = "Lv. MAX" if treeLevel == 3 else f"Lv. {treeLevel}"
+    canvas.create_text(
+        161,
+        barY2 + 32,
+        text=levelText,
+        font=("Noto Sans HK Black", 10),
+        fill="black"
     )
 
     createTopBar(root, "Home page")

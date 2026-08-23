@@ -14,7 +14,13 @@ def createDatabase():
             password TEXT NOT NULL,
             parentUsername TEXT,
             parentPassword TEXT,
-            xp INTEGER NOT NULL DEFAULT 0
+            xp INTEGER NOT NULL DEFAULT 0,
+            treeLevel INTEGER NOT NULL DEFAULT 1,
+            defaultOwned INTEGER NOT NULL DEFAULT 1,
+            fireOwned INTEGER NOT NULL DEFAULT 0,
+            glitchOwned INTEGER NOT NULL DEFAULT 0,
+            galaxyOwned INTEGER NOT NULL DEFAULT 0,
+            selectedSkin TEXT NOT NULL DEFAULT 'default'
         )
     """)
 
@@ -26,6 +32,62 @@ def createDatabase():
             xpAmount INTEGER NOT NULL
         )
     """)
+
+    connection.commit()
+    connection.close()
+
+
+#Returns which tree skins the user owns
+def getSkinOwnership(username):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT defaultOwned, fireOwned, glitchOwned, galaxyOwned, selectedSkin FROM users WHERE username = ?",
+        (username,)
+    )
+    row = cursor.fetchone()
+    connection.close()
+
+    #Just in case, shouldn't actually happen
+    if row is None:
+        return {"default": True, "fire": False, "glitch": False, "galaxy": False}, "default"
+
+    defaultOwned, fireOwned, glitchOwned, galaxyOwned, selectedSkin = row
+    ownership = {
+        "default": bool(defaultOwned),
+        "fire": bool(fireOwned),
+        "glitch": bool(glitchOwned),
+        "galaxy": bool(galaxyOwned)
+    }
+    return ownership, selectedSkin
+
+
+#Changed a variable for skin owned to 1
+def buySkin(username, skinName):
+    column = f"{skinName}Owned"
+
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        f"UPDATE users SET {column} = 1 WHERE username = ?",
+        (username,)
+    )
+
+    connection.commit()
+    connection.close()
+
+
+#Sets the currently selected skin (the last button clicked)
+def selectSkin(username, skinName):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "UPDATE users SET selectedSkin = ? WHERE username = ?",
+        (skinName, username)
+    )
 
     connection.commit()
     connection.close()
@@ -85,13 +147,42 @@ def getXP(username):
     return row[0] if row else 0
 
 
+#Returns the user's tree level (tree growth stage)
+def getTreeLevel(username):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT treeLevel FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    connection.close()
+
+    return row[0] if row else 1
+
+
 def addXP(username, amount):
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
+    #Get the current XP amount and tree level to see if it's over 100
+    cursor.execute("SELECT xp, treeLevel FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    currentXP, currentLevel = row
+
+    newXP = currentXP + amount
+    newLevel = currentLevel
+
+    #Make the tree level up when xp is over 100
+    while newXP >= 100 and newLevel < 3:
+        newXP -= 100
+        newLevel += 1
+
+    #Stops XP gain after the final tree level is reached
+    if newLevel == 3 and newXP > 100:
+        newXP = 100
+
     cursor.execute(
-        "UPDATE users SET xp = xp + ? WHERE username = ?",
-        (amount, username)
+        "UPDATE users SET xp = ?, treeLevel = ? WHERE username = ?",
+        (newXP, newLevel, username)
     )
 
     connection.commit()
