@@ -8,6 +8,11 @@ def shopPage(root):
     for widget in root.winfo_children():
         widget.destroy()
 
+    #Page settings
+    root.title("Shop")
+    root.geometry("322x581")
+    root.resizable(False, False)
+    
     #Canvas
     canvas = tk.Canvas(
         root,

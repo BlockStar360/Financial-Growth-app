@@ -1,4 +1,5 @@
 import tkinter as tk
+import session
 from tkinter import messagebox
 from functions import addPlaceholder
 from functions import showPopup, addPlaceholder, getRealValue
@@ -6,13 +7,12 @@ from database import checkUser, addUser
 from homepage import homePage
 
 
-def userLogin(usernameEntry, passwordEntry, root):
-    username = usernameEntry
-    password = passwordEntry
+def userLogin(username, password, root):
     if not username or not password:
         showPopup(root, "Error", "Please fill out both fields")
         return
     if checkUser(username, password):
+        session.currentUsername = username
         showPopup(root, "Login successful!", f"Welcome {username}!")
         for widget in root.winfo_children():
             widget.destroy()
@@ -20,12 +20,13 @@ def userLogin(usernameEntry, passwordEntry, root):
     else:
         showPopup(root, "Error", "User not found")
 
-#Process sign up
+#Sign up verification
 def userSignup(username, password, root):
     if not username or not password:
         showPopup(root, "Error", "Please fill out both fields")
         return
     addUser(username, password)
+    showPopup(root, "Success", "New user ccount created")
 
 #Create the log in window
 def loginPage(root):
