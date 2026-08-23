@@ -26,7 +26,7 @@ def userSignup(username, password, root):
         showPopup(root, "Error", "Please fill out both fields")
         return
     addUser(username, password)
-    showPopup(root, "Success", "New user ccount created")
+    showPopup(root, "Success", "New user account created")
 
 #Create the log in window
 def loginPage(root):

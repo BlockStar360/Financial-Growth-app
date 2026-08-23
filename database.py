@@ -2,6 +2,7 @@ import sqlite3
 DATABASE = "users.db"
 
 
+#Creates the database used to store information for individual accounts
 def createDatabase():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
@@ -12,7 +13,8 @@ def createDatabase():
             username TEXT NOT NULL,
             password TEXT NOT NULL,
             parentUsername TEXT,
-            parentPassword TEXT
+            parentPassword TEXT,
+            xp INTEGER NOT NULL DEFAULT 0
         )
     """)
 
@@ -29,6 +31,7 @@ def createDatabase():
     connection.close()
 
 
+#Adds a chore that will appear as a box on the chores list
 def addChore(childUsername, choreName, xpAmount):
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
@@ -42,12 +45,13 @@ def addChore(childUsername, choreName, xpAmount):
     connection.close()
 
 
+#Returns all the chores currently assigned to the account
 def getChoresFor(childUsername):
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
     cursor.execute(
-        "SELECT choreName, xpAmount FROM chores WHERE childUsername = ?",
+        "SELECT id, choreName, xpAmount FROM chores WHERE childUsername = ?",
         (childUsername,)
     )
 
@@ -56,6 +60,42 @@ def getChoresFor(childUsername):
 
     #A list of tuples with chore name and xp amount
     return rows
+
+
+#Removes a chore (after the chore box is clicked)
+def deleteChore(choreId):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute("DELETE FROM chores WHERE id = ?", (choreId,))
+
+    connection.commit()
+    connection.close()
+
+
+#Returns the amound of xp the user currently has
+def getXP(username):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT xp FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    connection.close()
+
+    return row[0] if row else 0
+
+
+def addXP(username, amount):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "UPDATE users SET xp = xp + ? WHERE username = ?",
+        (amount, username)
+    )
+
+    connection.commit()
+    connection.close()
 
 
 def checkUser(username, password):

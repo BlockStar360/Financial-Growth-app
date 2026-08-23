@@ -1,9 +1,11 @@
 import tkinter as tk
 import os
+import session
 
 from shop import shopPage
 from choreList import choresPage
 from bars import createBottomBar, createTopBar
+from database import getXP
 
 
 def homePage(root):
@@ -17,8 +19,8 @@ def homePage(root):
     root.resizable(False, False)
 
     # Money variables
-    money = 25
-    maxMoney = 100
+    xp = getXP(session.currentUsername) if session.currentUsername else 0
+    maxXp = 100
 
     #Canvas
     canvas = tk.Canvas(
@@ -57,13 +59,13 @@ def homePage(root):
     )
     canvas.treeImage = treeImage
 
-    #Money progress bar stuff
+    #XP progress bar stuff
     barX1 = 60
     barY1 = 360
     barX2 = 262
     barY2 = 395
 
-    #Create an outline for the money progress bar
+    #Create an outline for the XP progress bar
     canvas.create_rectangle(
         barX1,
         barY1,
@@ -75,7 +77,7 @@ def homePage(root):
     )
 
     #Money progress bar for tree upgrade
-    moneyPercentage = min(money / maxMoney, 1)
+    moneyPercentage = min(xp / maxXp, 1)
     fillWidth = (barX2 - barX1) * moneyPercentage
     canvas.create_rectangle(
         barX1 + 4,
@@ -90,7 +92,7 @@ def homePage(root):
     canvas.create_text(
     161,
     barY2 + 15,
-    text=f"{money}/{maxMoney} XP",
+    text=f"{xp}/{maxXp} XP",
     font=("Noto Sans HK Black", 10),
     fill="black"
     )

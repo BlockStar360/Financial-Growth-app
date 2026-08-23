@@ -4,7 +4,7 @@ import session
 
 from parentLogin import parentLoginPage
 from bars import createBottomBar, createTopBar
-from database import getChoresFor
+from database import getChoresFor, deleteChore, addXP
 
 def choresPage(root):
 
@@ -46,14 +46,51 @@ def choresPage(root):
     childUsername = session.currentUsername
     chores = getChoresFor(childUsername) if childUsername else []
 
-    for choreName, xpAmount in chores:
+    #Keeps track of the y positions of chore boxes to replace them with flash text
+    choreYPositions = {}
+
+    def completeChore(choreId, xpAmount, tag):
+        #Makes the box unclickable
+        canvas.tag_unbind(tag, "<Button-1>")
+
+        #Remove the original box to display the XP amount
+        canvas.delete(tag)
+
+        y = choreYPositions[choreId]
+        canvas.create_rectangle(
+            20, y - 15,
+            302, y + 15,
+            fill="#FFD83D",
+            outline="#4B8F43",
+            width=2
+        )
+        canvas.create_text(
+            161, y,
+            text=f"+{xpAmount} XP",
+            font=("Noto Sans HK Black", 12, "bold"),
+            fill="black"
+        )
+
+        #After one second, remove the box and add XP
+        def finishChore():
+            addXP(childUsername, xpAmount)
+            deleteChore(choreId)
+            choresPage(root)
+
+        root.after(1000, finishChore)
+
+    for choreId, choreName, xpAmount in chores:
+        tag = f"chore_{choreId}"
+        choreYPositions[choreId] = nextY #Save the y position of this chore
+
         #Create the box outline
         canvas.create_rectangle(
             20, nextY - 15,
             302, nextY + 15,
             fill="white",
             outline="#4B8F43",
-            width=2
+            width=2,
+            tags=tag
         )
 
         #Chore name on the left
@@ -61,7 +98,8 @@ def choresPage(root):
             35, nextY,
             text=choreName,
             font=("Noto Sans HK Black", 11),
-            anchor="w"
+            anchor="w",
+            tags=tag
         )
 
         #XP amount on the right
@@ -69,8 +107,17 @@ def choresPage(root):
             287, nextY,
             text=f"{xpAmount} XP",
             font=("Noto Sans HK Black", 11),
-            anchor="e"
+            anchor="e",
+            tags=tag
         )
+
+        #Makes each box individual so they can be clicked
+        canvas.tag_bind(
+            tag,
+            "<Button-1>",
+            lambda event, cid=choreId, xp=xpAmount, t=tag: completeChore(cid, xp, t)
+        )
+
         #Make it so that the next box stacks without overlapping
         nextY += 40
 

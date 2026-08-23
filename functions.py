@@ -8,15 +8,19 @@ def addPlaceholder(entry, placeholder):
 
     def onFocusIn(event):
         if entry.isPlaceholder:
+            entry.config(validate="none") #Pause validation so it doesn't interfere
             entry.delete(0, tk.END)
             entry.config(fg="black")
             entry.isPlaceholder = False
+            entry.config(validate="key") #Resume validation
 
     def onFocusOut(event):
         if entry.get() == "":
+            entry.config(validate="none")
             entry.insert(0, placeholder)
             entry.config(fg="grey")
             entry.isPlaceholder = True
+            entry.config(validate="key")
 
     entry.bind("<FocusIn>", onFocusIn)
     entry.bind("<FocusOut>", onFocusOut)

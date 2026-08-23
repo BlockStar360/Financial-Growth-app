@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.font as tkfont
 from functions import showPopup, addPlaceholder, getRealValue
 from database import addChore
 
@@ -36,9 +37,12 @@ def addChorePage(root, childUsername):
     choreNameEntry.pack(pady=5)
     addPlaceholder(choreNameEntry, "Chore Name")
 
-    #Limit chore name to 21 characters because thats the size of the text box
+    #Stops the user from typing when they reach the end of the box
+    entryFont = tkfont.Font(font=("Noto Sans HK Black", 12))
+
     def limitChoreNameLength(newValue):
-        return len(newValue) <= 21
+        maxPixelWidth = choreNameEntry.winfo_reqwidth() - 5
+        return entryFont.measure(newValue) <= maxPixelWidth
 
     validateCommand = choreNameEntry.register(limitChoreNameLength)
     choreNameEntry.config(validate="key", validatecommand=(validateCommand, "%P"))
@@ -46,6 +50,15 @@ def addChorePage(root, childUsername):
     xpAmountEntry = tk.Entry(root, width=25, font=("Noto Sans HK Black", 12))
     xpAmountEntry.pack(pady=5)
     addPlaceholder(xpAmountEntry, "XP Amount")
+
+    #Only lets the user type 3 numbers for the XP amount
+    def limitXPInput(newValue):
+        if newValue == "":
+            return True
+        return newValue.isdigit() and len(newValue) <= 3
+
+    xpValidateCommand = xpAmountEntry.register(limitXPInput)
+    xpAmountEntry.config(validate="key", validatecommand=(xpValidateCommand, "%P"))
 
     submitButton = tk.Button(root,
                             text="Submit",
