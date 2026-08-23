@@ -7,6 +7,7 @@ def createDatabase():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
+    #CHENGE DEFAULT MONEY TO 0 AFTER TESTING
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,6 +17,7 @@ def createDatabase():
             parentPassword TEXT,
             xp INTEGER NOT NULL DEFAULT 0,
             treeLevel INTEGER NOT NULL DEFAULT 1,
+            money INTEGER NOT NULL DEFAULT 600,
             defaultOwned INTEGER NOT NULL DEFAULT 1,
             fireOwned INTEGER NOT NULL DEFAULT 0,
             glitchOwned INTEGER NOT NULL DEFAULT 0,
@@ -35,6 +37,41 @@ def createDatabase():
 
     connection.commit()
     connection.close()
+
+
+#Returns the amount of money the user has
+def getMoney(username):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT money FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    connection.close()
+
+    return row[0] if row else 0
+
+
+#Tries to spend the amount of money, returns True if it worked and False if the user is broke
+def spendMoney(username, amount):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT money FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    currentMoney = row[0] if row else 0
+
+    if currentMoney < amount:
+        connection.close()
+        return False
+
+    cursor.execute(
+        "UPDATE users SET money = money - ? WHERE username = ?",
+        (amount, username)
+    )
+
+    connection.commit()
+    connection.close()
+    return True
 
 
 #Returns which tree skins the user owns

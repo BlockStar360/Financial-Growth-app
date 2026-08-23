@@ -5,7 +5,7 @@ import session
 from shop import shopPage
 from choreList import choresPage
 from bars import createBottomBar, createTopBar
-from database import getXP, getTreeLevel
+from database import getXP, getTreeLevel, getSkinOwnership
 
 
 def homePage(root):
@@ -18,11 +18,12 @@ def homePage(root):
     root.geometry("322x581")
     root.resizable(False, False)
 
-    #XP and tree level variables
+    #XP and tree level variables with fallbacks
     childUsername = session.currentUsername
     xp = getXP(session.currentUsername) if session.currentUsername else 0
     maxXP = 100
     treeLevel = getTreeLevel(childUsername) if childUsername else 1
+    _, selectedSkin = getSkinOwnership(childUsername) if childUsername else ({}, "default")
 
     #Canvas
     canvas = tk.Canvas(
@@ -48,19 +49,31 @@ def homePage(root):
     )
     canvas.bgImage = backgroundImage
 
+
+
     #Create the tree graphic
-    treeImageFiles = {
-        1: "small.png",
-        2: "medium.png",
-        3: "big default.png"
+    skinImageFiles = {
+    "default": ("big default.png", 270),
+    "fire": ("big on fire.png", 225),
+    "glitch": ("big glitched.png", 270),
+    "galaxy": ("big galaxy.png", 252)
     }
+
+    treeImageFiles = {
+        1: ("small.png", 335),
+        2: ("medium.png", 297),
+        3: skinImageFiles[selectedSkin]
+    }
+
+    treeFilename, treeY = treeImageFiles[treeLevel]
+
     treeImage = tk.PhotoImage(
-    file=os.path.join(BASE_DIR, "Tree Graphics", treeImageFiles[treeLevel])
+    file=os.path.join(BASE_DIR, "Tree Graphics", treeFilename)
     )
 
     canvas.create_image(
         161,
-        227,
+        treeY, #Y position of tree, higher number = lower on the page
         image=treeImage
     )
     canvas.treeImage = treeImage

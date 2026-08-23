@@ -3,7 +3,8 @@ import os
 import session
 
 from bars import createBottomBar, createTopBar
-from database import getSkinOwnership, buySkin, selectSkin
+from database import getSkinOwnership, buySkin, selectSkin, getMoney,  spendMoney
+from functions import showPopup
 
 def shopPage(root):
 
@@ -39,7 +40,9 @@ def shopPage(root):
     )
     canvas.bgImage = backgroundImage
 
+    #Gets the users money amount from the database
     childUsername = session.currentUsername
+    money = getMoney(childUsername) if childUsername else 0
 
     #Stores the display names, actual names (keys) and price for each skin
     skins = [
@@ -60,6 +63,9 @@ def shopPage(root):
         owned = ownership[skinKey]
 
         if not owned:
+            if not spendMoney(childUsername, price):
+                showPopup(root, "Not enough money", "You're broke buddy")
+                return
             buySkin(childUsername, skinKey)
 
         selectSkin(childUsername, skinKey)
@@ -114,6 +120,15 @@ def shopPage(root):
         )
 
         nextY += 40
+
+    #Create the money amount text
+    canvas.create_text(
+        161,
+        nextY,
+        text=f"You have ${money}",
+        font=("Noto Sans HK Black", 13),
+        fill="black"
+    )
 
     createTopBar(root, "Shop")
     createBottomBar(root)

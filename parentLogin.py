@@ -13,7 +13,7 @@ def parentLogin(parentUsername, parentPassword, childUsername, root):
         from addChore import addChorePage
         addChorePage(root, childUsername)
     else:
-        showPopup(root, "Error", "Incorrect username or password")
+        showPopup(root, "Error", "User not found")
 
 #Sign up verification
 def parentSignup(parentUsername, parentPassword, childUsername, root):
