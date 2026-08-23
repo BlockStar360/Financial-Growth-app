@@ -99,37 +99,37 @@ def homePage(root):
 
     #Create a circle home button
     homeButton = tk.Canvas(
-    bottomBar,
-    width=50,
-    height=50,
+    root,
+    width=70,
+    height=70,
     bg="#EEEEEE",
     highlightthickness=0
     )
 
     homeButton.place(
-    x=136,
-    y=0
+    x=126,
+    y=511
     )
 
     #Green circle for the button
     homeButton.create_oval(
-    3,
-    3,
-    47,
-    47,
+    2,
+    2,
+    68,
+    68,
     fill="#4B8F43",
-    outline=""
+    outline="#1F5019"
     )
 
     #Add an emoji
     homeButton.create_text(
-    25,
-    25,
+    35,
+    35,
     text="🌳",
-    font=("Segoe UI Emoji", 20)
+    font=("Segoe UI Emoji", 25)
     )
 
-    #MAke the circle go to the homepage when clicked
+    #Make the circle go to the homepage when clicked
     homeButton.bind(
     "<Button-1>",
     lambda event: homePage(root)
