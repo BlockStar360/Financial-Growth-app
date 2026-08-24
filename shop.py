@@ -3,7 +3,7 @@ import os
 import session
 
 from bars import createBottomBar, createTopBar
-from database import getSkinOwnership, buySkin, selectSkin, getMoney,  spendMoney
+from database import getMoney, spendMoney, hasActiveTree, plantTree
 from functions import showPopup
 
 def shopPage(root):
@@ -52,39 +52,30 @@ def shopPage(root):
         ("Galaxy", "galaxy", 300)
     ]
 
-    ownership, selectedSkin = getSkinOwnership(childUsername) if childUsername else (
-        {"default": True, "fire": False, "glitch": False, "galaxy": False}, "default"
-    )
-
     nextY = 75
 
-    #Buy a skin if not owned when you click a button
+    #Plant a new tree of a certain skin if the user doesn't already have a tree
     def handleSkinClick(skinKey, price):
-        owned = ownership[skinKey]
+        if hasActiveTree(childUsername):
+            showPopup(root, "Can't buy tree yet", "Grow your current tree first!")
+            return
 
-        if not owned:
-            if not spendMoney(childUsername, price):
-                showPopup(root, "Not enough money", "You're broke buddy")
-                return
-            buySkin(childUsername, skinKey)
+        if price > 0 and not spendMoney(childUsername, price):
+            showPopup(root, "Not enough money", "You're broke buddy")
+            return
 
-        selectSkin(childUsername, skinKey)
+        plantTree(childUsername, skinKey)
         #Refresh the page
         shopPage(root)
 
     for displayName, skinKey, price in skins:
         tag = f"skin_{skinKey}"
-        owned = ownership[skinKey]
-        isSelected = (skinKey == selectedSkin)
-
-        #Outline the selected box in yellow
-        outlineColor = "#FFD83D" if isSelected else "#4B8F43"
 
         canvas.create_rectangle(
             20, nextY - 15,
             302, nextY + 15,
             fill="white",
-            outline=outlineColor,
+            outline="#4B8F43",
             width=2,
             tags=tag
         )
@@ -97,13 +88,7 @@ def shopPage(root):
             tags=tag
         )
 
-        #Sets the text to the amount of money if not owned, and selected/owned if it is owned
-        if isSelected:
-            rightText = "Selected"
-        elif owned:
-            rightText = "Owned"
-        else:
-            rightText = f"${price}"
+        rightText = "Free" if price == 0 else f"${price}"
 
         canvas.create_text(
             287, nextY,

@@ -5,7 +5,7 @@ import session
 from shop import shopPage
 from choreList import choresPage
 from bars import createBottomBar, createTopBar
-from database import getXP, getTreeLevel, getSkinOwnership, addMoney, resetTree
+from database import getXP, getTreeLevel, getSelectedSkin, sellTree
 
 
 def homePage(root):
@@ -20,10 +20,10 @@ def homePage(root):
 
     #XP and tree level variables with fallbacks
     childUsername = session.currentUsername
-    xp = getXP(session.currentUsername) if session.currentUsername else 0
+    xp = getXP(childUsername) if childUsername else 0
     maxXP = 100
-    treeLevel = getTreeLevel(childUsername) if childUsername else 1
-    _, selectedSkin = getSkinOwnership(childUsername) if childUsername else ({}, "default")
+    treeLevel = getTreeLevel(childUsername) if childUsername else 0
+    selectedSkin = getSelectedSkin(childUsername) if childUsername else "default"
 
     #Stores the amount of money that each skin sells for
     sellAmounts = {
@@ -62,32 +62,61 @@ def homePage(root):
 
 
 
-    #Create the tree graphic
-    skinImageFiles = {
-    "default": ("big default.png", 270),
-    "fire": ("big on fire.png", 225),
-    "glitch": ("big glitched.png", 270),
-    "galaxy": ("big galaxy.png", 252)
-    }
+    #Create the tree graphic or not if the user doesn't have a tree
+    if treeLevel == 0:
+        canvas.create_text(
+            161,
+            290,
+            text="Buy a tree in the shop",
+            font=("Noto Sans HK Black", 12),
+            fill="black",
+            justify="center"
+        )
+    else:
+        defaultImages = {
+        1: ("small default.png", 161, 335),
+        2: ("medium default.png", 161, 297),
+        3: ("big default.png", 161, 270)
+        }
 
-    treeImageFiles = {
-        1: ("small.png", 335),
-        2: ("medium.png", 297),
-        3: skinImageFiles[selectedSkin]
-    }
+        fireImages = {
+            1: ("small on fire.png", 161, 285),
+            2: ("medium on fire.png", 161, 265),
+            3: ("big on fire.png", 161, 225)
+        }
 
-    treeFilename, treeY = treeImageFiles[treeLevel]
+        glitchImages = {
+            1: ("small glitched.png", 161, 335),
+            2: ("medium glitched.png", 161, 297),
+            3: ("big glitched.png", 161, 270)
+        }
 
-    treeImage = tk.PhotoImage(
-    file=os.path.join(BASE_DIR, "Tree Graphics", treeFilename)
-    )
+        galaxyImages = {
+            1: ("small galaxy.png", 161, 350),
+            2: ("medium galaxy.png", 173, 310),
+            3: ("big galaxy.png", 161, 252)
+        }
 
-    canvas.create_image(
-        161,
-        treeY, #Y position of tree, higher number = lower on the page
-        image=treeImage
-    )
-    canvas.treeImage = treeImage
+        #Stores 4 groups of 3 images
+        skinImageSets = {
+        "default": defaultImages,
+        "fire": fireImages,
+        "glitch": glitchImages,
+        "galaxy": galaxyImages
+        }
+
+        treeFilename, treeX, treeY = skinImageSets[selectedSkin][treeLevel]
+
+        treeImage = tk.PhotoImage(
+        file=os.path.join(BASE_DIR, "Tree Graphics", treeFilename)
+        )
+
+        canvas.create_image(
+            treeX,
+            treeY, #Y position of tree, higher number = lower on the page
+            image=treeImage
+        )
+        canvas.treeImage = treeImage
 
     #XP progress bar stuff
     barX1 = 60
@@ -138,9 +167,9 @@ def homePage(root):
         )
 
         def handleSellTree():
-            addMoney(childUsername, sellAmount)
-            resetTree(childUsername)
-            homePage(root)  # rebuild the page with the new (reset) state
+            sellTree(childUsername, sellAmount)
+            #Refresh the page
+            homePage(root)
 
         canvas.tag_bind(barTag, "<Button-1>", lambda event: handleSellTree())
 

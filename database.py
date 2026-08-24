@@ -7,6 +7,7 @@ def createDatabase():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
+    #CHANGE MONEY BACK TO 0
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,13 +16,9 @@ def createDatabase():
             parentUsername TEXT,
             parentPassword TEXT,
             xp INTEGER NOT NULL DEFAULT 0,
-            treeLevel INTEGER NOT NULL DEFAULT 1,
-            money INTEGER NOT NULL DEFAULT 0,
-            defaultOwned INTEGER NOT NULL DEFAULT 1,
-            fireOwned INTEGER NOT NULL DEFAULT 0,
-            glitchOwned INTEGER NOT NULL DEFAULT 0,
-            galaxyOwned INTEGER NOT NULL DEFAULT 0,
-            selectedSkin TEXT NOT NULL DEFAULT 'default'
+            treeLevel INTEGER NOT NULL DEFAULT 0,
+            money INTEGER NOT NULL DEFAULT 1000,
+            selectedSkin TEXT NOT NULL DEFAULT ''
         )
     """)
 
@@ -46,20 +43,6 @@ def addMoney(username, amount):
     cursor.execute(
         "UPDATE users SET money = money + ? WHERE username = ?",
         (amount, username)
-    )
-
-    connection.commit()
-    connection.close()
-
-
-#Set the tree level back to 1 so the user has to grow another one
-def resetTree(username):
-    connection = sqlite3.connect(DATABASE)
-    cursor = connection.cursor()
-
-    cursor.execute(
-        "UPDATE users SET xp = 0, treeLevel = 1 WHERE username = ?",
-        (username,)
     )
 
     connection.commit()
@@ -101,60 +84,56 @@ def spendMoney(username, amount):
     return True
 
 
-#Returns which tree skins the user owns
-def getSkinOwnership(username):
+#Returns True if a tree is currently growing
+def hasActiveTree(username):
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    cursor.execute(
-        "SELECT defaultOwned, fireOwned, glitchOwned, galaxyOwned, selectedSkin FROM users WHERE username = ?",
-        (username,)
-    )
+    cursor.execute("SELECT treeLevel FROM users WHERE username = ?", (username,))
     row = cursor.fetchone()
     connection.close()
 
-    #Just in case, shouldn't actually happen
-    if row is None:
-        return {"default": True, "fire": False, "glitch": False, "galaxy": False}, "default"
-
-    defaultOwned, fireOwned, glitchOwned, galaxyOwned, selectedSkin = row
-    ownership = {
-        "default": bool(defaultOwned),
-        "fire": bool(fireOwned),
-        "glitch": bool(glitchOwned),
-        "galaxy": bool(galaxyOwned)
-    }
-    return ownership, selectedSkin
+    return row is not None and row[0] > 0
 
 
-#Changed a variable for skin owned to 1
-def buySkin(username, skinName):
-    column = f"{skinName}Owned"
-
+#Starts growing a new tree of a certain type
+def plantTree(username, skinKey):
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
     cursor.execute(
-        f"UPDATE users SET {column} = 1 WHERE username = ?",
-        (username,)
+        "UPDATE users SET treeLevel = 1, xp = 0, selectedSkin = ? WHERE username = ?",
+        (skinKey, username)
     )
 
     connection.commit()
     connection.close()
 
 
-#Sets the currently selected skin (the last button clicked)
-def selectSkin(username, skinName):
+#Resets the tree and adds money to the user's account
+def sellTree(username, amount):
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
     cursor.execute(
-        "UPDATE users SET selectedSkin = ? WHERE username = ?",
-        (skinName, username)
+        "UPDATE users SET money = money + ?, xp = 0, treeLevel = 0 WHERE username = ?",
+        (amount, username)
     )
 
     connection.commit()
     connection.close()
+
+
+#Gets the currently selected skin (the last button clicked)
+def getSelectedSkin(username):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT selectedSkin FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    connection.close()
+
+    return row[0] if row and row[0] else "default"
 
 
 #Adds a chore that will appear as a box on the chores list
@@ -220,7 +199,7 @@ def getTreeLevel(username):
     row = cursor.fetchone()
     connection.close()
 
-    return row[0] if row else 1
+    return row[0] if row else 0
 
 
 def addXP(username, amount):
