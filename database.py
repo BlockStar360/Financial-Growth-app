@@ -7,7 +7,6 @@ def createDatabase():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    #CHENGE DEFAULT MONEY TO 0 AFTER TESTING
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +16,7 @@ def createDatabase():
             parentPassword TEXT,
             xp INTEGER NOT NULL DEFAULT 0,
             treeLevel INTEGER NOT NULL DEFAULT 1,
-            money INTEGER NOT NULL DEFAULT 600,
+            money INTEGER NOT NULL DEFAULT 0,
             defaultOwned INTEGER NOT NULL DEFAULT 1,
             fireOwned INTEGER NOT NULL DEFAULT 0,
             glitchOwned INTEGER NOT NULL DEFAULT 0,
@@ -34,6 +33,34 @@ def createDatabase():
             xpAmount INTEGER NOT NULL
         )
     """)
+
+    connection.commit()
+    connection.close()
+
+
+#Adds a certain amount of money to the users account
+def addMoney(username, amount):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "UPDATE users SET money = money + ? WHERE username = ?",
+        (amount, username)
+    )
+
+    connection.commit()
+    connection.close()
+
+
+#Set the tree level back to 1 so the user has to grow another one
+def resetTree(username):
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "UPDATE users SET xp = 0, treeLevel = 1 WHERE username = ?",
+        (username,)
+    )
 
     connection.commit()
     connection.close()

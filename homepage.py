@@ -5,7 +5,7 @@ import session
 from shop import shopPage
 from choreList import choresPage
 from bars import createBottomBar, createTopBar
-from database import getXP, getTreeLevel, getSkinOwnership
+from database import getXP, getTreeLevel, getSkinOwnership, addMoney, resetTree
 
 
 def homePage(root):
@@ -24,6 +24,17 @@ def homePage(root):
     maxXP = 100
     treeLevel = getTreeLevel(childUsername) if childUsername else 1
     _, selectedSkin = getSkinOwnership(childUsername) if childUsername else ({}, "default")
+
+    #Stores the amount of money that each skin sells for
+    sellAmounts = {
+    "default": 100,
+    "fire": 150,
+    "glitch": 200,
+    "galaxy": 300
+    }
+
+    #Trees are only sellable at max level and XP
+    isSellable = (treeLevel == 3 and xp >= maxXP)
 
     #Canvas
     canvas = tk.Canvas(
@@ -101,18 +112,51 @@ def homePage(root):
     innerX2 = barX2 - 4
     innerWidth = innerX2 - innerX1
 
-    #Filling the inside of the bar not the outline
-    moneyPercentage = min(xp / maxXP, 1)
-    fillWidth = innerWidth * moneyPercentage
+    if isSellable:
+        sellAmount = sellAmounts[selectedSkin]
 
-    canvas.create_rectangle(
-        innerX1, 
-        barY1 + 4, 
-        innerX1 + fillWidth, 
-        barY2 - 4, 
-        fill="#FFD83D", 
-        outline=""
-    )
+        #Make the bar into a clickable button with text that says the amount of money you get for sell
+        barTag = "sellBar"
+        canvas.create_rectangle(
+            innerX1,
+            barY1 + 4,
+            innerX2,
+            barY2 - 4,
+            fill="#FFD83D",
+            outline="",
+            tags=barTag
+        )
+
+        #Create the sell amount text
+        canvas.create_text(
+            161,
+            (barY1 + barY2) / 2,
+            text=f"Sell +${sellAmount}",
+            font=("Noto Sans HK Black", 12, "bold"),
+            fill="white",
+            tags=barTag
+        )
+
+        def handleSellTree():
+            addMoney(childUsername, sellAmount)
+            resetTree(childUsername)
+            homePage(root)  # rebuild the page with the new (reset) state
+
+        canvas.tag_bind(barTag, "<Button-1>", lambda event: handleSellTree())
+
+    else:
+        #Filling the inside of the bar not the outline
+        moneyPercentage = min(xp / maxXP, 1)
+        fillWidth = innerWidth * moneyPercentage
+
+        canvas.create_rectangle(
+            innerX1, 
+            barY1 + 4, 
+            innerX1 + fillWidth, 
+            barY2 - 4, 
+            fill="#FFD83D", 
+            outline=""
+        )
 
     #Create the XP amount text
     canvas.create_text(
@@ -133,7 +177,7 @@ def homePage(root):
         fill="black"
     )
 
-    createTopBar(root, "Home page")
+    createTopBar(root, "Home")
     createBottomBar(root)
 
 def profilePage(root):
