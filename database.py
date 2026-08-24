@@ -7,7 +7,6 @@ def createDatabase():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    #CHANGE MONEY BACK TO 0
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +16,7 @@ def createDatabase():
             parentPassword TEXT,
             xp INTEGER NOT NULL DEFAULT 0,
             treeLevel INTEGER NOT NULL DEFAULT 0,
-            money INTEGER NOT NULL DEFAULT 1000,
+            money INTEGER NOT NULL DEFAULT 0,
             selectedSkin TEXT NOT NULL DEFAULT ''
         )
     """)
